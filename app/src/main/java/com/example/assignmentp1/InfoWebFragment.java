@@ -39,7 +39,6 @@ public class InfoWebFragment extends Fragment {
         // the activity's shared ViewModel
         viewModel = new ViewModelProvider(requireActivity()).get(TickerViewModel.class);
 
-        // Observe the selected URL for changes
         viewModel.selectedUrl.observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String url) {

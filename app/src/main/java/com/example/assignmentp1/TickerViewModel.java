@@ -30,11 +30,11 @@ public class TickerViewModel extends ViewModel {
             currentList = new ArrayList<>();
         }
 
-        // The List fragment will contain no more than 6 entries
+        //  no more than 6 entries
         if (currentList.size() < 6) {
             currentList.add(newTicker);
         } else {
-            // Replaces the sixth entry with the newly received ticker
+            // replaces the sixth entry
             currentList.set(5, newTicker);
         }
         tickerList.setValue(currentList);

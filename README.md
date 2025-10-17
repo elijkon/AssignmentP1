@@ -1,2 +1,2 @@
 Elijah Konkle
-Assignment 2 part A
+Assignment 2 
