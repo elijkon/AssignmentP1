@@ -3,7 +3,11 @@ package com.example.assignmentp1;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,51 +18,50 @@ import java.util.ArrayList;
 
 public class TickerListFragment extends Fragment {
 
-    private ArrayList<String> tickerList;
-    private ArrayAdapter<String> adapter;
-    private OnTickerSelectedListener mListener;
+    private TickerViewModel viewModel;
+    private ListView tickerListView;
+
+    //private OnTickerSelectedListener mListener; dont need cause of viewmodel
 
     public TickerListFragment() {
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        try {
-            mListener = (OnTickerSelectedListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnTickerSelectedListener");
-        }
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //list for my ticker symbols
-        tickerList = new ArrayList<>();
-        tickerList.add("NEE");
-        tickerList.add("AAPL");
-        tickerList.add("DIS");
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_ticker_list, container, false);
+        tickerListView = view.findViewById(R.id.ticker_list_view);
+        return view;
+    }
 
-        // the listview and its adapter to display the tickers
-        ListView listView = view.findViewById(R.id.ticker_list_view);
-        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, tickerList);
-        listView.setAdapter(adapter);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        // the listener for when an item is clicked
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        // Get the activity's shared ViewModel
+        viewModel = new ViewModelProvider(requireActivity()).get(TickerViewModel.class);
+
+        // Observe the list of tickers for changes
+        viewModel.tickerList.observe(getViewLifecycleOwner(), new Observer<ArrayList<String>>() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onChanged(ArrayList<String> tickers) {
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(requireActivity(),
+                        android.R.layout.simple_list_item_1, tickers);
+                tickerListView.setAdapter(adapter);
             }
         });
 
-        return view;
+        tickerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedTicker = (String) parent.getItemAtPosition(position);
+                viewModel.setUrlFromTicker(selectedTicker);
+            }
+        });
     }
 }
